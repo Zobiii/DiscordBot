@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  discordbot:
+    build:
+      context: ./src/DiscordBot
+      dockerfile: Dockerfile
+      args:
+        BUILD_CONFIGURATION: Release
+    container_name: discordbot
+    restart: unless-stopped
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - DISCORDBOT_Discord__Token=${DISCORD_TOKEN}
+      - DISCORDBOT_Discord__DevGuildId=${DISCORD_DEV_GUILD_ID:-}
+      - DISCORDBOT_Discord__RegisterCommandsGlobally=${DISCORD_REGISTER_GLOBALLY:-true}
+    volumes:
+      # Mount logs directory for persistent logging
+      - ./logs:/app/logs:rw
+      # Mount config directory for additional configuration files
+      - ./config:/app/config:ro
+    networks:
+      - discordbot-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # Set to false because we need to write logs
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=100m
+
+  # Optional: Add a log aggregator (uncomment if needed)
+  # fluentd:
+  #   image: fluentd:v1.16-1
+  #   container_name: discordbot-fluentd
+  #   volumes:
+  #     - ./fluentd/conf:/fluentd/etc
+  #     - ./logs:/var/log/discordbot:ro
+  #   depends_on:
+  #     - discordbot
+  #   networks:
+  #     - discordbot-network
+
+networks:
+  discordbot-network:
+    driver: bridge
+
+volumes:
+  discordbot-logs:
+    driver: local
