@@ -23,14 +23,13 @@ public static class Program
     [System.STAThread]
     public static async Task<int> Main(string[] arguments)
     {
-        // Configure early logging before host is built
+        // Configure early logging before host is built (only for critical startup errors)
         Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            .MinimumLevel.Information()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.Extensions.Http.DefaultHttpClientFactory", LogEventLevel.Warning)
             .Enrich.FromLogContext()
-            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {NewLine}{Exception}")
-            .CreateBootstrapLogger();
+            .CreateBootstrapLogger(); // No console sink to avoid duplicate output
 
         try
         {
@@ -145,8 +144,8 @@ public static class Program
         var botConfig = context.Configuration.Get<BotConfiguration>() ?? new BotConfiguration();
         var loggingConfig = botConfig.Logging;
 
+        // Clear any existing configuration to avoid duplicates
         configuration
-            .ReadFrom.Configuration(context.Configuration)
             .Enrich.FromLogContext()
             .Enrich.WithProperty("Application", "DiscordBot")
             .Enrich.WithProperty("Version", GetVersion())
