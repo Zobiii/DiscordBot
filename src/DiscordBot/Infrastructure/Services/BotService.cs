@@ -122,7 +122,7 @@ public sealed class BotService : IBotService, IDisposable
         }
     }
 
-    public async Task<BotStatistics> GetStatisticsAsync()
+    public Task<BotStatistics> GetStatisticsAsync()
     {
         ThrowIfDisposed();
 
@@ -134,7 +134,7 @@ public sealed class BotService : IBotService, IDisposable
             ? _client.Guilds.Sum(g => g.MemberCount) 
             : 0;
 
-        return new BotStatistics
+        return Task.FromResult(new BotStatistics
         {
             StartedAt = _startedAt,
             GuildCount = guildCount,
@@ -143,7 +143,7 @@ public sealed class BotService : IBotService, IDisposable
             GatewayLatency = _client.Latency,
             MemoryUsage = memoryUsage,
             Version = "0.0.1"
-        };
+        });
     }
 
     public void IncrementCommandCounter()
@@ -151,7 +151,7 @@ public sealed class BotService : IBotService, IDisposable
         Interlocked.Increment(ref _commandsExecuted);
     }
 
-    private async Task OnClientLog(LogMessage logMessage)
+    private Task OnClientLog(LogMessage logMessage)
     {
         var logLevel = logMessage.Severity switch
         {
@@ -165,6 +165,7 @@ public sealed class BotService : IBotService, IDisposable
         };
 
         _logger.Log(logLevel, logMessage.Exception, "Discord: {Message}", logMessage.Message);
+        return Task.CompletedTask;
     }
 
     private async Task OnClientReady()
@@ -176,9 +177,10 @@ public sealed class BotService : IBotService, IDisposable
             stats.GuildCount, stats.UserCount);
     }
 
-    private async Task OnClientConnected()
+    private Task OnClientConnected()
     {
         _logger.LogInformation("Discord client connected");
+        return Task.CompletedTask;
     }
 
     private async Task OnClientDisconnected(Exception exception)
@@ -191,7 +193,7 @@ public sealed class BotService : IBotService, IDisposable
         }
     }
 
-    private async Task ChangeStatusAsync(BotStatus newStatus, string? message = null, Exception? exception = null)
+    private Task ChangeStatusAsync(BotStatus newStatus, string? message = null, Exception? exception = null)
     {
         var previousStatus = _status;
         _status = newStatus;
@@ -208,6 +210,7 @@ public sealed class BotService : IBotService, IDisposable
             previousStatus, newStatus, message);
 
         StatusChanged?.Invoke(this, eventArgs);
+        return Task.CompletedTask;
     }
 
     private void ThrowIfDisposed()

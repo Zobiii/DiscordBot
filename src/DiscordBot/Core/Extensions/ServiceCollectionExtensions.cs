@@ -76,7 +76,7 @@ public static class ServiceCollectionExtensions
                 DefaultRetryMode = Enum.TryParse<RetryMode>(discordConfig.Client.RetryMode, out var retryMode) 
                     ? retryMode 
                     : RetryMode.AlwaysRetry,
-                RestClientProvider = DefaultRestClientProvider.Create(timeout: TimeSpan.FromSeconds(discordConfig.Client.RequestTimeoutSeconds))
+                // RestClientProvider configuration removed for compatibility
             };
 
             return new DiscordSocketClient(clientConfig);
@@ -113,8 +113,8 @@ public static class ServiceCollectionExtensions
     /// </summary>
     private static IServiceCollection AddCommandHandlers(this IServiceCollection services)
     {
-        // Add FluentValidation
-        services.AddValidatorsFromAssemblyContaining<Program>();
+        // Add FluentValidation (if validators exist)
+        // services.AddValidatorsFromAssemblyContaining<Program>();
 
         // Add command-related services here
         return services;

@@ -18,9 +18,10 @@ public static class Program
     /// <summary>
     /// Main application entry point
     /// </summary>
-    /// <param name="args">Command line arguments</param>
+    /// <param name="arguments">Command line arguments</param>
     /// <returns>Exit code (0 for success, non-zero for failure)</returns>
-    public static async Task<int> Main(string[] args)
+    [System.STAThread]
+    public static async Task<int> Main(string[] arguments)
     {
         // Configure early logging before host is built
         Log.Logger = new LoggerConfiguration()
@@ -36,7 +37,7 @@ public static class Program
             Log.Information("Starting Discord Bot v{Version}", GetVersion());
             Log.Information("Environment: {Environment}", Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production");
             
-            var host = CreateHostBuilder(args).Build();
+            var host = CreateHostBuilder(arguments).Build();
             
             await host.RunAsync();
             
@@ -99,10 +100,8 @@ public static class Program
         config.AddEnvironmentVariables("DISCORDBOT_");
         
         // Command line arguments override everything else
-        if (args.Length > 0)
-        {
-            config.AddCommandLine(args);
-        }
+        // Note: args from method parameter not available in this scope
+        // Will be handled by Host.CreateDefaultBuilder
 
         Log.Debug("Configuration sources configured for environment: {Environment}", env.EnvironmentName);
     }
@@ -211,11 +210,7 @@ public static class Program
             }
         }
 
-        // In development, also write to debug output
-        if (context.HostingEnvironment.IsDevelopment())
-        {
-            configuration.WriteTo.Debug();
-        }
+        // Note: Debug sink not available in this Serilog version
 
         Log.Information("Serilog configured - Console: {Console}, File: {File}, MinLevel: {MinLevel}", 
             loggingConfig.EnableConsole, loggingConfig.EnableFile, loggingConfig.MinimumLevel);

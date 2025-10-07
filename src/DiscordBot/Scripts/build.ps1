@@ -7,8 +7,7 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "Release",
     
-    [switch]$Clean,
-    [switch]$Verbose
+    [switch]$Clean
 )
 
 # Set error action preference
@@ -17,7 +16,7 @@ $ErrorActionPreference = "Stop"
 # Get script directory
 $ScriptDir = $PSScriptRoot
 $ProjectDir = Split-Path -Parent $ScriptDir
-$SolutionDir = Split-Path -Parent -Parent $ProjectDir
+$SolutionDir = Split-Path -Parent $ProjectDir
 
 Write-Host "🔧 Discord Bot Build Script" -ForegroundColor Cyan
 Write-Host "Configuration: $Configuration" -ForegroundColor Gray
@@ -39,7 +38,7 @@ try {
     # Restore packages
     Write-Host "📦 Restoring NuGet packages..." -ForegroundColor Yellow
     $RestoreArgs = @("restore")
-    if ($Verbose) { $RestoreArgs += "--verbosity", "normal" }
+    if ($VerbosePreference -eq "Continue") { $RestoreArgs += "--verbosity", "normal" }
     & dotnet @RestoreArgs
     
     if ($LASTEXITCODE -ne 0) {
@@ -49,7 +48,7 @@ try {
     # Build project
     Write-Host "🔨 Building project..." -ForegroundColor Yellow
     $BuildArgs = @("build", "--configuration", $Configuration, "--no-restore")
-    if ($Verbose) { $BuildArgs += "--verbosity", "normal" }
+    if ($VerbosePreference -eq "Continue") { $BuildArgs += "--verbosity", "normal" }
     & dotnet @BuildArgs
     
     if ($LASTEXITCODE -ne 0) {

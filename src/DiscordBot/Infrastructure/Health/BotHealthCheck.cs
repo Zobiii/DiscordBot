@@ -41,11 +41,11 @@ public sealed class BotHealthCheck : IHealthCheck
             return status switch
             {
                 BotStatus.Running => HealthCheckResult.Healthy("Bot is running normally", data),
-                BotStatus.Starting => HealthCheckResult.Degraded("Bot is starting up", data),
-                BotStatus.Stopping => HealthCheckResult.Degraded("Bot is shutting down", data),
-                BotStatus.Stopped => HealthCheckResult.Unhealthy("Bot is stopped", data),
-                BotStatus.Error => HealthCheckResult.Unhealthy("Bot is in error state", data),
-                _ => HealthCheckResult.Unhealthy("Bot is in unknown state", data)
+                BotStatus.Starting => HealthCheckResult.Degraded("Bot is starting up", null, data),
+                BotStatus.Stopping => HealthCheckResult.Degraded("Bot is shutting down", null, data),
+                BotStatus.Stopped => HealthCheckResult.Unhealthy("Bot is stopped", null, data),
+                BotStatus.Error => HealthCheckResult.Unhealthy("Bot is in error state", null, data),
+                _ => HealthCheckResult.Unhealthy("Bot is in unknown state", null, data)
             };
         }
         catch (Exception ex)

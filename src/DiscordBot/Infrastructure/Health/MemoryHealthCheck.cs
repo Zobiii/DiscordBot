@@ -20,7 +20,7 @@ public sealed class MemoryHealthCheck : IHealthCheck
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -42,26 +42,26 @@ public sealed class MemoryHealthCheck : IHealthCheck
 
             if (memoryUsageMB > thresholdMB)
             {
-                return HealthCheckResult.Unhealthy(
+                return Task.FromResult(HealthCheckResult.Unhealthy(
                     $"Memory usage ({memoryUsageMB:N1}MB) exceeds threshold ({thresholdMB}MB)", 
-                    data);
+                    null, data));
             }
 
             // Warn if memory usage is above 80% of threshold
             var warningThreshold = thresholdMB * 0.8;
             if (memoryUsageMB > warningThreshold)
             {
-                return HealthCheckResult.Degraded(
+                return Task.FromResult(HealthCheckResult.Degraded(
                     $"Memory usage ({memoryUsageMB:N1}MB) is approaching threshold ({thresholdMB}MB)", 
-                    data);
+                    null, data));
             }
 
-            return HealthCheckResult.Healthy($"Memory usage is normal ({memoryUsageMB:N1}MB)", data);
+            return Task.FromResult(HealthCheckResult.Healthy($"Memory usage is normal ({memoryUsageMB:N1}MB)", data));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred during memory health check");
-            return HealthCheckResult.Unhealthy("Failed to check memory usage", ex);
+            return Task.FromResult(HealthCheckResult.Unhealthy("Failed to check memory usage", ex));
         }
     }
 }

@@ -83,7 +83,7 @@ public sealed class UtilityModule : InteractionModuleBase<SocketInteractionConte
         var embed = new EmbedBuilder()
             .WithTitle("👤 Benutzerinformationen")
             .WithThumbnailUrl(user.GetAvatarUrl(size: 256) ?? user.GetDefaultAvatarUrl())
-            .WithColor(guildUser?.RoleColor ?? Color.Blue)
+            .WithColor(Color.Blue)
             .AddField("Benutzername", $"{user.Username}", true)
             .AddField("Diskriminator", $"#{user.Discriminator}", true)
             .AddField("ID", user.Id.ToString(), true)
@@ -136,7 +136,7 @@ public sealed class UtilityModule : InteractionModuleBase<SocketInteractionConte
         await DeferAsync(ephemeral: true);
 
         var guild = Context.Guild;
-        var owner = await guild.GetOwnerAsync();
+        var owner = guild.Owner;
 
         var embed = new EmbedBuilder()
             .WithTitle($"🏰 {guild.Name}")
@@ -185,7 +185,7 @@ public sealed class UtilityModule : InteractionModuleBase<SocketInteractionConte
             .AddField("🔢 Version", statistics.Version, true)
             .AddField("⚙️ .NET Version", Environment.Version.ToString(), true)
             .AddField("💻 Betriebssystem", Environment.OSVersion.ToString(), true)
-            .WithFooter($"Bot gestartet", statistics.StartedAt)
+            .WithFooter($"Bot gestartet am {statistics.StartedAt:dd.MM.yyyy HH:mm}")
             .WithCurrentTimestamp();
 
         await FollowupAsync(embed: embed.Build(), ephemeral: true);

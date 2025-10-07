@@ -138,10 +138,10 @@ public sealed class InteractionHandler : IInteractionHandler, IDisposable
         }
     }
 
-    public async Task<Dictionary<string, int>> GetCommandStatisticsAsync()
+    public Task<Dictionary<string, int>> GetCommandStatisticsAsync()
     {
         ThrowIfDisposed();
-        return new Dictionary<string, int>(_commandStatistics);
+        return Task.FromResult(new Dictionary<string, int>(_commandStatistics));
     }
 
     private async Task HandleInteractionAsync(SocketInteraction interaction)
@@ -307,22 +307,25 @@ public sealed class InteractionHandler : IInteractionHandler, IDisposable
         _ => "Unknown"
     };
 
-    private async Task OnSlashCommandExecuted(SlashCommandInfo commandInfo, IInteractionContext context, IResult result)
+    private Task OnSlashCommandExecuted(SlashCommandInfo commandInfo, IInteractionContext context, IResult result)
     {
         // Additional logging for slash command execution can be added here
+        return Task.CompletedTask;
     }
 
-    private async Task OnContextCommandExecuted(ContextCommandInfo commandInfo, IInteractionContext context, IResult result)
+    private Task OnContextCommandExecuted(ContextCommandInfo commandInfo, IInteractionContext context, IResult result)
     {
         // Additional logging for context command execution can be added here
+        return Task.CompletedTask;
     }
 
-    private async Task OnComponentCommandExecuted(ComponentCommandInfo commandInfo, IInteractionContext context, IResult result)
+    private Task OnComponentCommandExecuted(ComponentCommandInfo commandInfo, IInteractionContext context, IResult result)
     {
         // Additional logging for component command execution can be added here
+        return Task.CompletedTask;
     }
 
-    private async Task OnInteractionServiceLog(LogMessage logMessage)
+    private Task OnInteractionServiceLog(LogMessage logMessage)
     {
         var logLevel = logMessage.Severity switch
         {
@@ -336,6 +339,7 @@ public sealed class InteractionHandler : IInteractionHandler, IDisposable
         };
 
         _logger.Log(logLevel, logMessage.Exception, "InteractionService: {Message}", logMessage.Message);
+        return Task.CompletedTask;
     }
 
     private void ThrowIfDisposed()
